@@ -33,3 +33,5 @@
 
 game
 game.exe
+*.swp
+*.*.swp
