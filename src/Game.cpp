@@ -3,6 +3,9 @@
 #include "./Game.h"
 #include "../lib/glm/glm.hpp"
 
+EntityManager manager;
+SDL_Renderer* Game::renderer;
+
 Game::Game(){
 	this->isRunning = false;
 }

@@ -4,8 +4,12 @@
 #include <vector>
 #include <string>
 
+#include "./Constants.h"
 #include "./Component.h"
 #include "./EntityManager.h"
+
+class EntityManager;
+class Component;
 
 class Entity {
     private:
@@ -19,7 +23,7 @@ class Entity {
         void Update(float delataTime);
         void Render();
         void Destroy();
-        bool IsAcitve() const;
+        bool IsActive() const;
 };
 
 #endif
