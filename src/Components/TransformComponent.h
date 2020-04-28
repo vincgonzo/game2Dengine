@@ -14,8 +14,8 @@
            int height;
            int scale;
    
-           TransformComponent(int posX, int PosY, int VelX, int VelY, int w, int h, int s){
-               position = glm::vec2(posX, posY);
+           TransformComponent(int PosX, int PosY, int VelX, int VelY, int w, int h, int s){
+               position = glm::vec2(PosX, PosY);
                velocity = glm::vec2(VelX, VelY);
                width = w;
                height = h;
@@ -27,7 +27,8 @@
            }
    
            void Update(float deltaTime) override {
-   
+                position.x += velocity.x * deltaTime; 
+                position.y += velocity.y * deltaTime; 
            }
    
            void Render() override {
@@ -37,10 +38,10 @@
                    width,
                    height
                };
-               SDL_SetRenderDrawColor(Game::renderer, 255, 255, 255, 255);
-               SDL_RenderFillRect(Game::renderer, &tranformRectangle);
+               SDL_SetRenderDrawColor(Game::renderer, 0, 0, 0, 0);
+               SDL_RenderFillRect(Game::renderer, &transformRectangle);
            }
-   }
+   };
    
    #endif
 

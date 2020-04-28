@@ -1,6 +1,7 @@
 #include <iostream>
 #include "./Constants.h"
 #include "./Game.h"
+#include "./Components/TransformComponent.h"
 #include "../lib/glm/glm.hpp"
 
 EntityManager manager;
@@ -47,6 +48,11 @@ void Game::Initialize(int width, int height) {
 	return;
 }
 
+void Game::LoadLevel(int levelNumber){
+    Entity& newEntity(manager.AddEntity("projectile"));
+    newEntity.AddComponent<TransformComponent>(0, 0, 20, 20, 32, 32, 1);
+}
+
 void Game::ProcessInput(){
 	SDL_Event event;
 	SDL_PollEvent(&event);
@@ -83,25 +89,18 @@ void Game::Update(){
 	// Sets the new ticks for the current frame to be used in the next pass	
 	ticksLastFrame = SDL_GetTicks();
 
-	projectilePos = glm::vec2(
-		projectilePos.x + projectileVel.x * deltaTime,
-		projectilePos.y + projectileVel.y * deltaTime
-	);
+    manager.Update(deltaTime);
 }
 
 void Game::Render(){
 	SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
 	SDL_RenderClear(renderer);
+    
+    if(manager.HasNoEntities()){
+        return;
+    }
+    manager.Render();
 
-	SDL_Rect projectile {
-		(int) projectilePos.x,
-		(int) projectilePos.y,
-		10,
-		10
-	};
-
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderFillRect(renderer, &projectile);
 	SDL_RenderPresent(renderer);
 }
 
