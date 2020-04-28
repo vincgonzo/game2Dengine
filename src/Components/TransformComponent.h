@@ -38,7 +38,7 @@
                    width,
                    height
                };
-               SDL_SetRenderDrawColor(Game::renderer, 0, 0, 0, 0);
+               SDL_SetRenderDrawColor(Game::renderer, 255, 255, 255, 255);
                SDL_RenderFillRect(Game::renderer, &transformRectangle);
            }
    };
