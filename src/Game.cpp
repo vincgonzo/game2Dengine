@@ -44,7 +44,9 @@ void Game::Initialize(int width, int height) {
 	       return;	
 	}
 
-	isRunning = true;
+    LoadLevel(0);
+	
+    isRunning = true;
 	return;
 }
 

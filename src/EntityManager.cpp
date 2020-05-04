@@ -6,7 +6,7 @@ void EntityManager::ClearData(){
     }
 }
 
-bool EntityManager::HasNoEntities(){
+bool EntityManager::HasNoEntities() const {
     return entities.size() == 0;
 }
 
