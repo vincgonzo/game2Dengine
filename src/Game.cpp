@@ -53,6 +53,10 @@ void Game::Initialize(int width, int height) {
 void Game::LoadLevel(int levelNumber){
     Entity& newEntity(manager.AddEntity("projectile"));
     newEntity.AddComponent<TransformComponent>(0, 0, 20, 20, 32, 32, 1);
+    Entity& PP2(manager.AddEntity("projectile2"));
+    PP2.AddComponent<TransformComponent>(10, 10, 20, 20, 32, 32, 1);
+    Entity& Py3(manager.AddEntity("projectile3"));
+    Py3.AddComponent<TransformComponent>(100, 100, 10, 10, 15, 15, 1);
 }
 
 void Game::ProcessInput(){
