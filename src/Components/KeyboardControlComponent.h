@@ -1,6 +1,7 @@
 #ifndef KEYBOARDCONTROLCOMPONENT_H
 #define KEYBOARDCONTROLCOMPONENT_H
 
+#include <iostream>
 #include "../Game.h"
 #include "../EntityManager.h"
 #include "./TransformComponent.h"
@@ -21,7 +22,7 @@ class KeyboardControlComponent: public Component {
 
         }
 
-        KeyboardControlComponent(std::string upKey, std::string rigthKey, std::string downKey, std::string leftKey, std::string shootKey){
+        KeyboardControlComponent(std::string upKey, std::string rightKey, std::string downKey, std::string leftKey, std::string shootKey){
             this->upKey = GetSDLKeyStringCode(upKey);
             this->rightKey = GetSDLKeyStringCode(rightKey);
             this->downKey = GetSDLKeyStringCode(downKey);
