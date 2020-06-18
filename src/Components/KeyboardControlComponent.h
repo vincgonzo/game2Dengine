@@ -48,24 +48,24 @@ class KeyboardControlComponent: public Component {
             if(Game::event.type == SDL_KEYDOWN){
                 std::string keyCode = std::to_string(Game::event.key.keysym.sym);
 
-                if(keyCode.compare(upKey) == 0){
-                    transform->velocity.y = -30;
+                if(keyCode.compare(upKey) == 0 && transform->position.y > 0){
+                    transform->velocity.y = -40;
                     transform->velocity.x = 0;
                     sprite->Play("UpAnimation");
                 }
-                if(keyCode.compare(downKey) == 0){
-                    transform->velocity.y = 30;
+                if(keyCode.compare(downKey) == 0 && transform->position.y < WINDOW_HEIGHT){
+                    transform->velocity.y = 40;
                     transform->velocity.x = 0;
                     sprite->Play("DownAnimation");
                 }
-                if(keyCode.compare(rightKey) == 0){
+                if(keyCode.compare(rightKey) == 0 && transform->position.x < WINDOW_WIDTH){
                     transform->velocity.y = 0;
-                    transform->velocity.x = 30;
+                    transform->velocity.x = 40;
                     sprite->Play("RightAnimation");
                 }
-                if(keyCode.compare(leftKey) == 0){
+                if(keyCode.compare(leftKey) == 0 && transform->position.x > 0){
                     transform->velocity.y = 0;
-                    transform->velocity.x = -30;
+                    transform->velocity.x = -40;
                     sprite->Play("LeftAnimation");
                 }
                 if(keyCode.compare(shootKey) == 0){
@@ -75,16 +75,16 @@ class KeyboardControlComponent: public Component {
             if(Game::event.type == SDL_KEYUP){
                 std::string keyCode = std::to_string(Game::event.key.keysym.sym);
 
-                if(keyCode.compare(upKey) == 0){
+                if(keyCode.compare(upKey) == 0 && transform->position.y < 0){
                     transform->velocity.y = 0;
                 }
-                if(keyCode.compare(downKey) == 0){
+                if(keyCode.compare(downKey) == 0 && transform->position.y < WINDOW_HEIGHT){
                     transform->velocity.y = 0;
                 }
-                if(keyCode.compare(rightKey) == 0){
+                if(keyCode.compare(rightKey) == 0 && transform->position.x < WINDOW_WIDTH){
                     transform->velocity.x = 0;
                 }
-                if(keyCode.compare(leftKey) == 0){
+                if(keyCode.compare(leftKey) == 0 && transform->position.x < 0){
                     transform->velocity.x = 0;
                 }
             }
