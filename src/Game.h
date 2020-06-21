@@ -26,6 +26,7 @@ class Game {
         void LoadLevel(int levelNumber);
 		void Initialize(int width, int height);
         void HandleCameraMovement();
+        void CheckCollisions();
 		void ProcessInput();
 		void Update();
 		void Render();
