@@ -28,6 +28,8 @@ class Game {
         void HandleCameraMovement();
         void CheckCollisions();
 		void ProcessInput();
+        void ProcessGameOver();
+        void ProcessNextLevel(int level);
 		void Update();
 		void Render();
 		void Destroy();
