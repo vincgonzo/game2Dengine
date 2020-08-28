@@ -7,6 +7,8 @@
 #include "./Components/SpriteComponent.h"
 #include "./Components/KeyboardControlComponent.h"
 #include "./Components/ColliderComponent.h"
+#include "./Components/TextLabelComponents.h"
+#include "./Components/ProjectileEmitterComponent.h"
 #include "../lib/glm/glm.hpp"
 
 EntityManager manager;
@@ -33,8 +35,12 @@ glm::vec2 projectileVel = glm::vec2(20.0f, 20.0f);
 void Game::Initialize(int width, int height) {
 	if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
 		std::cerr << "Error initializing SDL." << std::endl;
-	       return;	
+	    return;	
 	}
+    if(TTF_Init() != 0){
+        std::cerr << "Error initializing SDL TTF." << std::endl;
+        return;
+    }
 	window = SDL_CreateWindow(
 		NULL,
 		SDL_WINDOWPOS_CENTERED,
@@ -53,7 +59,7 @@ void Game::Initialize(int width, int height) {
 	       return;	
 	}
 
-    LoadLevel(0);
+    LoadLevel(1);
 	
     isRunning = true;
 	return;
@@ -62,35 +68,56 @@ void Game::Initialize(int width, int height) {
 Entity& player(manager.AddEntity("chopper", PLAYER_LAYER));
 
 void Game::LoadLevel(int levelNumber){
-    // Start include new assets to assetManager
-    assetManager->AddTexture("tank-image", std::string("./assets/images/tank-big-right.png").c_str());
-    assetManager->AddTexture("chopper-image", std::string("./assets/images/chopper-spritesheet.png").c_str());
- //   assetManager->AddTexture("radar-image", std::string("./assets/images/radar.png").c_str());
-    assetManager->AddTexture("jungle-tiletexture", std::string("./assets/tilemaps/jungle.png").c_str());
-    assetManager->AddTexture("heliport-image", std::string("./assets/images/heliport.png").c_str());
+    std::cout << levelNumber << std::endl;
+    sol::state lua;
+    lua.open_libraries(sol::lib::base, sol::lib::os, sol::lib::math);
 
-    map = new Map("jungle-tiletexture", 2, 32);
-    map->LoadMap("./assets/tilemaps/jungle.map", 25, 20);
+    std::string levelName = "Level" + std::to_string(levelNumber);
+    std::cout << levelName << std::endl;
+    lua.script_file("./assets/scripts/"+ levelName + ".lua");
 
-    // Start include entities and also component to them
-    Entity& tankEntity(manager.AddEntity("tank", ENEMY_LAYER));
-    tankEntity.AddComponent<TransformComponent>(150, 495, 5, 0, 32, 32, 1);
-    tankEntity.AddComponent<SpriteComponent>("tank-image");
-    tankEntity.AddComponent<ColliderComponent>("ENEMY", 150, 495, 32, 32);
-    
-    Entity& heliport(manager.AddEntity("heliport", OBSTACLE_LAYER));
-    heliport.AddComponent<TransformComponent>(470, 420, 0, 0, 32, 32, 1);
-    heliport.AddComponent<SpriteComponent>("heliport-image");
-    heliport.AddComponent<ColliderComponent>("LEVEL_COMPLETE", 470, 420, 32, 32);
-    
-    player.AddComponent<TransformComponent>(240, 106, 0, 0, 32, 32, 1);
-    player.AddComponent<SpriteComponent>("chopper-image", 2, 90, true, false);
-    player.AddComponent<KeyboardControlComponent>("up", "right", "down", "left", "space");
-    player.AddComponent<ColliderComponent>("PLAYER", 240, 106, 32, 32);
-    
-//    Entity& radarEntity(manager.AddEntity("Radar", UI_LAYER));
-//    tankEntity.AddComponent<TransformComponent>(720, 15, 0, 0, 64, 64, 1);
-//    tankEntity.AddComponent<SpriteComponent>("radar-image", 8, 150, false, true);
+    sol::table levelData = lua[levelName];
+    //std::cout << levelData["map"]["scale"] << std::endl;
+    /************************************************/
+    /* LOADS ASSETS FROM LUA SCRIPT FILE            */
+    /************************************************/
+    sol::table levelAssets = levelData["assets"];
+    unsigned int assetIndex = 0;
+    while(true){
+        sol::optional<sol::table> existAssetIndexMode = levelAssets[assetIndex];
+        if(existAssetIndexMode == sol::nullopt){
+            break;
+        }else{
+            sol::table asset = levelAssets[assetIndex];
+            std::string assetType = asset["type"];
+            if(assetType.compare("texture") == 0){
+                std::string assetId = asset["id"];
+                std::string assetFile = asset["file"];
+    std::cout << "output asset id ::: " << assetId << std::endl;
+               // assetManager->AddTexture(assetId, assetFile.c_str());
+            }
+        }
+        assetIndex++;
+    }
+
+    /************************************************/
+    /* LOADS MAP FROM LUA SCRIPT FILE            */
+    /************************************************/
+    sol::table levelMap = levelData["map"];
+    std::string mapTextureId = levelMap["textureAssetId"];
+    std::string mapFile = levelMap["file"];
+
+    std::cout << "Map Textureid ::: " << mapTextureId << std::endl;
+    map = new Map(
+            mapTextureId,
+            static_cast<int>(levelMap["scale"]),
+            static_cast<int>(levelMap["tileSize"])
+    );
+    map->LoadMap(
+            mapFile,
+            static_cast<int>(levelMap["mapSizeX"]),
+            static_cast<int>(levelMap["mapSizeY"])
+    );
 }
 
 void Game::ProcessInput(){
@@ -161,6 +188,9 @@ void Game::HandleCameraMovement(){
 void Game::CheckCollisions(){
     CollisionType collisionType = manager.CheckCollisions();
     if(collisionType == PLAYER_ENEMY_COLLISION){
+        ProcessGameOver();
+    }
+    if(collisionType == PLAYER_PROJECTILE_COLLISION){
         ProcessGameOver();
     }
     if(collisionType == PLAYER_LEVEL_COMPLETE_COLLISION){
