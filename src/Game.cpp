@@ -128,6 +128,87 @@ void Game::LoadLevel(int levelNumber) {
     //
     //*************************************************************************
     //*************************************************************************
+    sol::table entities = levelData["entities"];
+    unsigned int entityIndex = 0;
+    while(true){
+      sol::optional<sol::table> existsEntityIndexNode = entities[entityIndex];
+      if (existsEntityIndexNode == sol::nullopt) {
+        break;
+      } else {
+        sol::table entity = entities[entityIndex];
+        std::string entityName = entity["name"];
+        LayerType entityLayerType = static_cast<LayerType>(static_cast<int>(entity["layer"]));
+        auto& newEntity(manager.AddEntity(entityName, entityLayerType));
+
+        sol::optional<sol::table> existsTransformComponent = entity["components"]["transform"];
+        if(existsTransformComponent != sol::nullopt){
+            newEntity.AddComponent<TransformComponent>(
+                static_cast<int>(entity["components"]["transform"]["position"]["x"]),
+                static_cast<int>(entity["components"]["transform"]["position"]["y"]),
+                static_cast<int>(entity["components"]["transform"]["velocity"]["x"]),
+                static_cast<int>(entity["components"]["transform"]["velocity"]["y"]),
+                static_cast<int>(entity["components"]["transform"]["width"]),
+                static_cast<int>(entity["components"]["transform"]["height"]),
+                static_cast<int>(entity["components"]["transform"]["scale"])
+            );
+        }
+        std::cout << "entity Name === " << entityName << std::endl;
+
+        sol::optional<sol::table> existsSpriteComponent = entity["components"]["sprite"];
+        if(existsSpriteComponent != sol::nullopt){
+            std::string textureId = entity["components"]["sprite"]["textureAssetId"];
+            bool isAnimated = entity["components"]["sprite"]["animated"];
+            if(!isAnimated){
+                newEntity.AddComponent<SpriteComponent>(
+                    textureId,
+                    static_cast<int>(entity["components"]["sprite"]["frameCount"]),
+                    static_cast<int>(entity["components"]["sprite"]["animationSpeed"]),
+                    static_cast<bool>(entity["components"]["sprite"]["hasDirections"]),
+                    static_cast<bool>(entity["components"]["sprite"]["fixed"])
+                );
+            }else{
+                newEntity.AddComponent<SpriteComponent>(textureId);    
+            }
+        }
+
+        sol::optional<sol::table> existsInputComponent = entity["components"]["input"];
+        if(existsInputComponent != sol::nullopt){
+            sol::optional<sol::table> existsKeyBoardInputComponent = entity["components"]["input"]["keyboard"];
+            if(existsKeyBoardInputComponent != sol::nullopt){    
+                std::string upKey = entity["components"]["input"]["keyboard"]["up"];
+                std::string downKey = entity["components"]["input"]["keyboard"]["down"];
+                std::string leftKey = entity["components"]["input"]["keyboard"]["left"];
+                std::string rightKey = entity["components"]["input"]["keyboard"]["right"];
+                std::string shootKey = entity["components"]["input"]["keyboard"]["shoot"];
+                newEntity.AddComponent<KeyboardControlComponent>(upKey, rightKey, downKey, leftKey, shootKey);
+            }
+        }
+
+        sol::optional<sol::table> existsColliderComponent = entity["components"]["collider"];
+        if(existsColliderComponent != sol::nullopt){
+            std::string colliderTag = entity["components"]["collider"]["tag"];
+            newEntity.AddComponent<ColliderComponent>(
+                colliderTag,
+                static_cast<int>(entity["components"]["transform"]["position"]["x"]),
+                static_cast<int>(entity["components"]["transform"]["position"]["y"]),
+                static_cast<int>(entity["components"]["transform"]["width"]),
+                static_cast<int>(entity["components"]["transform"]["height"])
+            );
+        }
+       /* if (assetType.compare("texture") == 0) {
+                   std::string assetId = asset["id"];
+                   std::string assetFile = asset["file"];
+                   assetManager->AddTexture(assetId, assetFile.c_str());
+        }
+        if (assetType.compare("font") == 0) {
+                   std::string assetId = asset["id"];
+                   std::string assetFile = asset["file"];
+                   int fontSize = asset["fontSize"];
+                   assetManager->AddFont(assetId, assetFile.c_str(), fontSize);
+        }*/
+      }
+      entityIndex++;
+    }
 }
 
 void Game::ProcessInput() {
